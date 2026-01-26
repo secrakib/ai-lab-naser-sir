@@ -226,20 +226,25 @@ def check_large_board_win(status, player):
 
 # Get valid moves
 # Get valid moves
+# Get valid moves
 def get_valid_moves(state):
     moves = []
+    
+    # 1. First, try to get moves for the constrained next_board
     if state['next_board'] is not None and state['small_board_status'][state['next_board']] is None:
-        # Must play in the designated board
         for cell in range(9):
             if state['board'][state['next_board']][cell] == '':
                 moves.append((state['next_board'], cell))
-    else:
-        # Can play in any board that isn't won or drawn
+    
+    # 2. If the valid moves list is STILL empty (meaning either no constraint exists, 
+    #    OR the constrained board was actually full), allow playing in any open board.
+    if not moves:
         for board_idx in range(9):
             if state['small_board_status'][board_idx] is None:
                 for cell in range(9):
                     if state['board'][board_idx][cell] == '':
                         moves.append((board_idx, cell))
+                        
     return moves
 
 # Make a move
