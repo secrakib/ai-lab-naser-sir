@@ -225,13 +225,16 @@ def check_large_board_win(status, player):
     return False
 
 # Get valid moves
+# Get valid moves
 def get_valid_moves(state):
     moves = []
     if state['next_board'] is not None and state['small_board_status'][state['next_board']] is None:
+        # Must play in the designated board
         for cell in range(9):
             if state['board'][state['next_board']][cell] == '':
                 moves.append((state['next_board'], cell))
     else:
+        # Can play in any board that isn't won or drawn
         for board_idx in range(9):
             if state['small_board_status'][board_idx] is None:
                 for cell in range(9):
@@ -239,6 +242,7 @@ def get_valid_moves(state):
                         moves.append((board_idx, cell))
     return moves
 
+# Make a move
 # Make a move
 def make_move(state, board_idx, cell_idx, player):
     state['board'][board_idx][cell_idx] = player
@@ -255,11 +259,11 @@ def make_move(state, board_idx, cell_idx, player):
         state['game_over'] = True
         state['winner'] = 'Draw'
     
+    # FIX: Check if the target board (determined by cell_idx) is still available
     if state['small_board_status'][cell_idx] is None:
         state['next_board'] = cell_idx
     else:
         state['next_board'] = None
-
 # Evaluate board state
 def evaluate_state(state):
     if state['winner'] == 'O':
