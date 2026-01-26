@@ -229,24 +229,23 @@ def check_large_board_win(status, player):
 # Get valid moves
 def get_valid_moves(state):
     moves = []
+    target = state['next_board']
     
-    # 1. First, try to get moves for the constrained next_board
-    if state['next_board'] is not None and state['small_board_status'][state['next_board']] is None:
+    # 1. If there is a target board and it is not yet won or drawn
+    if target is not None and state['small_board_status'][target] is None:
         for cell in range(9):
-            if state['board'][state['next_board']][cell] == '':
-                moves.append((state['next_board'], cell))
+            if state['board'][target][cell] == '':
+                moves.append((target, cell))
     
-    # 2. If the valid moves list is STILL empty (meaning either no constraint exists, 
-    #    OR the constrained board was actually full), allow playing in any open board.
+    # 2. If no moves are possible in the target board (it's full/won) 
+    # OR no target is set, the player can move in ANY available board.
     if not moves:
         for board_idx in range(9):
             if state['small_board_status'][board_idx] is None:
-                for cell in range(9):
-                    if state['board'][board_idx][cell] == '':
-                        moves.append((board_idx, cell))
-                        
+                for cell_idx in range(9):
+                    if state['board'][board_idx][cell_idx] == '':
+                        moves.append((board_idx, cell_idx))
     return moves
-
 # Make a move
 # Make a move
 def make_move(state, board_idx, cell_idx, player):
@@ -343,7 +342,12 @@ def display_board(state):
             board_idx = large_row * 3 + large_col
             with cols[large_col]:
                 status = state['small_board_status'][board_idx]
-                is_active = state['next_board'] == board_idx if state['next_board'] is not None else False
+                # FIX: Logic to highlight ALL valid boards when next_board is None
+                if state['next_board'] is not None:
+                    is_active = (state['next_board'] == board_idx)
+                else:
+                    # If next_board is None, any board that isn't finished is active
+                    is_active = (state['small_board_status'][board_idx] is None)
                 
                 # Apply board outline styling
                 outline_class = 'board-outline-active' if is_active else 'board-outline'
